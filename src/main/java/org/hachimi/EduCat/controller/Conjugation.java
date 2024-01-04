@@ -26,8 +26,8 @@ public class Conjugation {
         try{
             String group;
             try{
-                group = json_body.getString("group");
-                JSONObject verb_data = conjugaisonService.generateVerb(group,  "present");
+                int difficulty = json_body.getInt("difficulty");
+                JSONObject verb_data = conjugaisonService.generateVerb(difficulty);
                 for (String key : verb_data.keySet()){
                     ret.put(key , verb_data.get(key));
                 }
@@ -36,6 +36,7 @@ public class Conjugation {
             }
         }catch (Exception e){
             ret.put("error", e.getMessage());
+            e.printStackTrace();
         }
         return  ret.toString();
     }

@@ -1,7 +1,7 @@
 package org.hachimi.EduCat.Exceptions;
 
 public class GroupConjugationException extends Exception{
-    public GroupConjugationException(){
-        super("Le groupe de verbes n'existe pas ou n'est pas pris en charge");
+    public GroupConjugationException(String group){
+        super("Le groupe de verbes " + group + " n'existe pas ou n'est pas pris en charge");
     }
 }
