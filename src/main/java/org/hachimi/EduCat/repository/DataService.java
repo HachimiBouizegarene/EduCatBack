@@ -139,6 +139,22 @@ public class DataService {
         return new byte[0]; // Retourne un tableau vide si l'image n'est pas trouvée ou en cas d'erreur
     }
 
+    public JSONArray getProfileImage(){
+        JSONArray jsonArray =  new JSONArray();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT PhotoProfil FROM utilisateur");
+            while (resultSet.next()) {
+                JSONObject json = new JSONObject();
+                json.put("PhotoProfil", resultSet.getBlob("PhotoProfil"));
+                jsonArray.put(json);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return jsonArray;
+    }
+
     public JSONObject insertPartie(String ScorePartie, String LibelleDifficultePartie, int IdUser, int IdJeu) throws ServerException {
         JSONObject ret = new JSONObject();
         try {
