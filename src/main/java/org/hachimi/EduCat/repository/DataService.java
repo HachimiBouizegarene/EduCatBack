@@ -103,40 +103,21 @@ public class DataService {
                 JSONObject json = new JSONObject();
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnName(i);
-                    if(!columnName.equals("ImageJeu"))
+                    String ColumnType = metaData.getColumnTypeName(i);
+                    if(ColumnType.equals("BLOB")){
+                        Blob blob = (Blob) resultSet.getBlob(columnName);
+                        byte[] data = blob.getBytes(1,(int) blob.length());
+                        json.put(columnName, data);
+                    }else {
                         json.put(columnName, resultSet.getString(columnName));
+                    }
                 }
                 jsonArray.put(json);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-
         }
         return jsonArray;
-    }
-
-    public byte[] getImageData(int idJeu) {
-        try {
-            String query = "SELECT ImageJeu FROM jeu WHERE IdJeu = ?";
-
-            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                preparedStatement.setInt(1, idJeu);
-
-                ResultSet resultSet = preparedStatement.executeQuery();
-
-                if (resultSet.next()) {
-                    Blob blob = resultSet.getBlob("ImageJeu");
-                    if (blob != null) {
-                        // Convertir le Blob en tableau d'octets
-                        return blob.getBytes(1, (int) blob.length());
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return new byte[0]; // Retourne un tableau vide si l'image n'est pas trouvée ou en cas d'erreur
     }
 
     public JSONArray getProfileImage(){

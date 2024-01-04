@@ -27,24 +27,5 @@ public class GamesMenu {
         return new ResponseEntity<>(gamesArray.toString(), HttpStatus.OK);
     }
 
-    @PostMapping(path = "/getGamesImages", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<byte[]> getGamesImages(@RequestBody String body) {
-        JSONObject json_body = new JSONObject(body);
-
-        try {
-            int IdJeu;
-            IdJeu = json_body.getInt("IdJeu");
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_PNG); // Ajustez cela en fonction du type d'image
-            byte[] imageBytes = dataService.getImageData(IdJeu); // Mettez en œuvre cette méthode pour obtenir les données d'image
-            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
 }
 
