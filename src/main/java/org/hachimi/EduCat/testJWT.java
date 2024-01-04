@@ -15,11 +15,16 @@ public class testJWT {
 
     public static void main(String args[]){
         String jwt = JWTService.generateJWT(new JSONObject("{'id': 3, 'hey' : 'goa'}"));
-        System.out.println(jwt);
+        System.out.println(JWTService.verifyJWT(jwt));
 
-        JSONObject ret = JWTService.getPayload(jwt);
-        System.out.println(ret.toString());
+//        System.out.println(jwt);
+//
+//        JSONObject ret = JWTService.getPayload(jwt);
+//        System.out.println(ret.toString());
 
+
+
+//        System.out.println(ret.toString());
 
     }
 }

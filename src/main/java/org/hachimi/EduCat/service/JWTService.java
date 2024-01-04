@@ -1,16 +1,14 @@
 package org.hachimi.EduCat.service;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
+import org.hachimi.EduCat.Exceptions.NotValidJwsException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Arrays;
 import java.util.Base64;
 
 @Service
@@ -27,8 +25,6 @@ public class JWTService {
         return jwt;
     }
 
-
-
     public static JSONObject getInfos(String jwt_str){
         Jwt<?, ?> jwt = null;
         try{
@@ -39,27 +35,30 @@ public class JWTService {
         return new JSONObject(jwt);
     }
 
-//    public static boolean verifyJWT(String jws_str) {
-//        boolean ret ;
-//        try {
-//            Jwt<?, ?> jws = Jwts.parser().verifyWith(key).build().parseSignedClaims(jws_str);
-//            ret = true;
-//
-//        } catch (Exception e) {
-//            ret = false;
-//        }
-//        return ret;
-//    }
+    public static boolean verifyJWT(String jws_str) {
+        boolean ret ;
+        try {
+            Jwt<?, ?> jws = Jwts.parser().verifyWith(key).build().parseSignedClaims(jws_str);
+            ret = true;
 
-    public static JSONObject getPayload(String jws_str){
+        } catch (Exception e) {
+            ret = false;
+        }
+        return ret;
+    }
+
+
+    public static JSONObject getPayload(String jws_str) throws NotValidJwsException {
         JSONObject ret = new JSONObject();
         Claims content = null;
         try{
             content = Jwts.parser().verifyWith(key).build().parseSignedClaims(jws_str).getPayload();
         }catch (Exception e){
             ret.put("error", e.getMessage());
+            throw new NotValidJwsException();
         }
-        ret.put("payload", new JSONObject(content));
-        return ret;
+        return new JSONObject(content);
     }
+
+
 }

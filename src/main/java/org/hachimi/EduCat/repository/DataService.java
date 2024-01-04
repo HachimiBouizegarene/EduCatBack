@@ -6,9 +6,8 @@ import org.hachimi.EduCat.Exceptions.UserNotFoundException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -65,13 +64,21 @@ public class DataService {
         return ret;
     }
 
-    public JSONObject getUser(String user_mail, String user_password) throws ServerException, UserNotFoundException{
+    public JSONObject getUser(String user_mail, String user_password,Integer id) throws ServerException, UserNotFoundException{
         JSONObject ret = new JSONObject();
+        PreparedStatement pstmt;
         try{
-            String sql = "SELECT * FROM utilisateur WHERE Email = ? AND MotDePasse = ?";
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setString(1, user_mail);
-            pstmt.setString(2, user_password);
+            String sql;
+            if(id == null){
+                sql = "SELECT * FROM utilisateur WHERE Email = ? AND MotDePasse = ?";
+                pstmt = connection.prepareStatement(sql);
+                pstmt.setString(1, user_mail);
+                pstmt.setString(2, user_password);
+            }else{
+                sql = "SELECT * FROM utilisateur WHERE IdUser = ?";
+                pstmt = connection.prepareStatement(sql);
+                pstmt.setInt(1, id);
+            }
             ResultSet resultSet = pstmt.executeQuery();
             int rows_count = 0;
             if(resultSet.next()){
@@ -80,7 +87,14 @@ public class DataService {
                 int columnCount = metaData.getColumnCount();
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnName(i);
-                    ret.put(columnName, resultSet.getString(columnName));
+                    String ColumnType = metaData.getColumnTypeName(i);
+                    if(ColumnType.equals("BLOB") || ColumnType.equals("MEDIUMBLOB")){
+                        Blob blob = (Blob) resultSet.getBlob(columnName);
+                        byte[] data = blob.getBytes(1,(int) blob.length());
+                        ret.put(columnName, data);
+                    }else {
+                        ret.put(columnName, resultSet.getString(columnName));
+                    }
                 }
             }
             if(rows_count <= 0 ) throw new UserNotFoundException();
@@ -104,7 +118,6 @@ public class DataService {
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnName(i);
                     String ColumnType = metaData.getColumnTypeName(i);
-                    System.out.println(ColumnType);
                     if(ColumnType.equals("BLOB") || ColumnType.equals("MEDIUMBLOB")){
                         Blob blob = (Blob) resultSet.getBlob(columnName);
                         byte[] data = blob.getBytes(1,(int) blob.length());

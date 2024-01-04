@@ -35,9 +35,8 @@ public class LogSign {
                 throw new InformationsException();
             }
             if(user_mail == "" || user_password == "") throw new InformationsException();
-
             JSONObject payloadUser = new JSONObject();
-            JSONObject json_user_data = dataService.getUser(user_mail, user_password);
+            JSONObject json_user_data = dataService.getUser(user_mail, user_password, null);
             String idUser = json_user_data.getString("IdUser");
             payloadUser.put("id", idUser);
             String jws = JWTService.generateJWT(payloadUser);
