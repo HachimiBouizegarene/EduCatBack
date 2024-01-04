@@ -19,12 +19,8 @@ public class ProfileController {
     }
     @PostMapping(path = "/profile")
     public String profile() throws SQLException {
-        JSONArray ret = dataService.getProfileImage();
-        Blob blob = (Blob) ret.getJSONObject(0).get("PhotoProfil");
-        byte[] data = blob.getBytes(1,(int) blob.length());
-        JSONObject retur = new JSONObject();
-        retur.put("data", data);
-        return retur.toString();
+        JSONArray ret = dataService.getTableData("utilisateur");
+//        System.out.println(ret.getJSONObject(0).get("PhotoProfil"));
+        return "hey";
     }
-
 }

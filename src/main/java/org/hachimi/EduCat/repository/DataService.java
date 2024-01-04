@@ -104,7 +104,8 @@ public class DataService {
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnName(i);
                     String ColumnType = metaData.getColumnTypeName(i);
-                    if(ColumnType.equals("BLOB")){
+                    System.out.println(ColumnType);
+                    if(ColumnType.equals("BLOB") || ColumnType.equals("MEDIUMBLOB")){
                         Blob blob = (Blob) resultSet.getBlob(columnName);
                         byte[] data = blob.getBytes(1,(int) blob.length());
                         json.put(columnName, data);

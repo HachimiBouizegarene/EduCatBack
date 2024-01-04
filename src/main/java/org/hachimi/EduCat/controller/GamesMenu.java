@@ -26,6 +26,5 @@ public class GamesMenu {
         JSONArray gamesArray = dataService.getTableData("Jeu");
         return new ResponseEntity<>(gamesArray.toString(), HttpStatus.OK);
     }
-
 }
 
