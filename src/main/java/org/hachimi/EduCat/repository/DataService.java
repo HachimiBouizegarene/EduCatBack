@@ -1,6 +1,7 @@
 package org.hachimi.EduCat.repository;
 
 import org.hachimi.EduCat.Entity.User;
+import org.hachimi.EduCat.Exceptions.FailUpdatePasswordException;
 import org.hachimi.EduCat.Exceptions.ServerException;
 import org.hachimi.EduCat.Exceptions.UserNotFoundException;
 import org.json.JSONArray;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.sql.rowset.serial.SerialException;
 import java.sql.*;
 import java.util.*;
 
@@ -108,7 +110,6 @@ public class DataService {
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM " + table);
-
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
             while (resultSet.next()) {
@@ -187,17 +188,22 @@ public class DataService {
                 return resultSet.getString("NomMatiere");
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new ServerException();
+
         }
 
         return "Matière Inconnue";
     }
 
-    public void updateUser(int id, Iterator<String> columns, JSONObject data) throws SQLException {
+    public void updateUser(int id, Iterator<String> columns, JSONObject data) throws ServerException {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("UPDATE utilisateur SET ");
         while(columns.hasNext()){
-            sqlBuilder.append(columns.next()).append(" = ?");
+            String column = columns.next();
+            sqlBuilder.append(column);
+            if(columns.hasNext()) sqlBuilder.append(" = ? , ");
+            else sqlBuilder.append(" = ? ");
         }
         sqlBuilder.append(" WHERE IdUser = ?");
         String sql = sqlBuilder.toString();
@@ -223,7 +229,45 @@ public class DataService {
         }
         catch (SQLException e){
             e.printStackTrace();
+            throw new ServerException();
         }
 
+    }
+
+    public boolean verifyPassword(int id,String password) throws ServerException, UserNotFoundException {
+        String sql = "SELECT MotDePasse FROM utilisateur WHERE IdUser = ?";
+        boolean ret = false;
+        try{
+            String get_password = null;
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            ResultSet resultSet = pstmt.executeQuery();
+            if(resultSet.next())  {
+                get_password = resultSet.getString(1);
+                ret =  get_password.equals(password);
+            }else{
+                throw new UserNotFoundException();
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new ServerException();
+        }
+        return ret;
+    }
+
+    public boolean upadtePassword(int id, String password) throws ServerException, FailUpdatePasswordException {
+        String sql = "UPDATE utilisateur SET MotDePasse = ? WHERE IdUser = ? ";
+        try{
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, password);
+            pstmt.setInt(2, id);
+            int rows_updated = pstmt.executeUpdate();
+            if (rows_updated < 1 ) return false;
+            else return true;
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new ServerException();
+        }
     }
 }
