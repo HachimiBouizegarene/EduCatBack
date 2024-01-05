@@ -106,8 +106,12 @@ public class DataService {
                     String ColumnType = metaData.getColumnTypeName(i);
                     if(ColumnType.equals("BLOB")){
                         Blob blob = (Blob) resultSet.getBlob(columnName);
-                        byte[] data = blob.getBytes(1,(int) blob.length());
-                        json.put(columnName, data);
+                        if (blob != null) {
+                            byte[] data = blob.getBytes(1,(int) blob.length());
+                            json.put(columnName, data);
+                        }else {
+                            json.put(columnName, "null");
+                        }
                     }else {
                         json.put(columnName, resultSet.getString(columnName));
                     }

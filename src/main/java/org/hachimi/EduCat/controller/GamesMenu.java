@@ -22,10 +22,8 @@ public class GamesMenu {
     }
 
     @PostMapping(path = "/getGamesInfos", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getGamesInfos() {
-        JSONArray gamesArray = dataService.getTableData("Jeu");
-        return new ResponseEntity<>(gamesArray.toString(), HttpStatus.OK);
+    public String getGamesInfos() {
+        return dataService.getTableData("Jeu").toString();
     }
-
 }
 
