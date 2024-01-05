@@ -176,6 +176,23 @@ public class DataService {
         return ret;
     }
 
+    public String getLibelleMatiereById(int idMatiere) throws ServerException {
+        String sql = "SELECT NomMatiere from matiere WHERE IdMatiere = ?";
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, idMatiere);
+            ResultSet resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                // Retourner l'objet JSON sous forme de chaîne
+                return resultSet.getString("NomMatiere");
+            }
+        } catch (SQLException e) {
+            throw new ServerException();
+        }
+
+        return "Matière Inconnue";
+    }
+
     public void updateUser(int id, Iterator<String> columns, JSONObject data) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("UPDATE utilisateur SET ");
@@ -207,9 +224,6 @@ public class DataService {
         catch (SQLException e){
             e.printStackTrace();
         }
-
-
-
 
     }
 }
