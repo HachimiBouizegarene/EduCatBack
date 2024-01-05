@@ -53,15 +53,13 @@ public class ProfileController {
                 jws = body.getString("jws");
                 JWTService.verifyJWT(jws);
                 body.remove("jws");
-                ArrayList<String> keys = new ArrayList<>();
-                Iterator<String> keys_iterator = body.keys();
-                while(keys_iterator.hasNext()){
-                    keys.add(keys_iterator.next());
-                }
 
             }catch (JSONException e){
                 throw new InformationsException();
             }
+            Iterator<String> keys_iterator = body.keys();
+            JSONObject payload = JWTService.getPayload(jws);
+            dataService.updateUser(payload.getInt("id"), keys_iterator, body);
         }catch (Exception e){
             ret.put("error", e.getMessage());
             e.printStackTrace();

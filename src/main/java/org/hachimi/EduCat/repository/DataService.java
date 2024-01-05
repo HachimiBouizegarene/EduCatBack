@@ -10,9 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class DataService {
@@ -176,5 +174,42 @@ public class DataService {
         }
 
         return ret;
+    }
+
+    public void updateUser(int id, Iterator<String> columns, JSONObject data) throws SQLException {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("UPDATE utilisateur SET ");
+        while(columns.hasNext()){
+            sqlBuilder.append(columns.next()).append(" = ?");
+        }
+        sqlBuilder.append(" WHERE IdUser = ?");
+        String sql = sqlBuilder.toString();
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql); System.out.println(sqlBuilder.toString());
+            int index = 1;
+            for (String key : data.keySet()){
+                if (key.equals("PhotoProfil")){
+                    JSONArray array = data.getJSONArray(key);
+                    byte [] bytes = new byte[array.length()];
+                    for (int i = 0; i < array.length(); i++) {
+                        bytes[i]=(byte)(((int)array.get(i)));
+                    }
+                    pstmt.setBytes(index, bytes);
+                }else{
+                    pstmt.setString(index, data.getString(key));
+                }
+                index += 1;
+            }
+            pstmt.setInt(index, id);
+            int changes = pstmt.executeUpdate();
+            System.out.println(changes);
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+
+
+
+
     }
 }
