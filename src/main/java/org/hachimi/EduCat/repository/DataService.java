@@ -24,6 +24,8 @@ public class DataService {
 
 
     Connection connection = null;
+    private PreparedStatement prt;
+
     public DataService( @Value("${database.url}") String databaseUrl,
                         @Value("${database.username}") String databaseUserName,
                         @Value("${database.password}") String databasePassword) {
@@ -176,5 +178,22 @@ public class DataService {
         }
 
         return ret;
+    }
+
+    public String getLibelleMatiereById(int idMatiere) throws ServerException {
+        String sql = "SELECT NomMatiere from matiere WHERE IdMatiere = ?";
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, idMatiere);
+            ResultSet resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                // Retourner l'objet JSON sous forme de chaîne
+                return resultSet.getString("NomMatiere");
+            }
+        } catch (SQLException e) {
+            throw new ServerException();
+        }
+
+        return "Matière Inconnue";
     }
 }
