@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 @RestController
 public class ProfileController {
@@ -19,7 +21,7 @@ public class ProfileController {
     public ProfileController(DataService dataService , JWTService jwtService){
         this.dataService = dataService;
     }
-    @PostMapping(path = "/profile")
+    @PostMapping(path = "/getProfile")
     public String profile(@RequestBody String body_str) {
         JSONObject body = new JSONObject(body_str);
         JSONObject ret = new JSONObject();
@@ -34,10 +36,39 @@ public class ProfileController {
 
             JSONObject payload = JWTService.getPayload(jws);
             ret = dataService.getUser(null, null,  payload.getInt("id"));
+            ret.remove("MotDePasse");
         }catch (Exception e){
             ret.put("error", e.getMessage());
             e.printStackTrace();
         }
         return ret.toString();
     }
+    @PostMapping(path = "/updateProfile")
+    public String updateProfile(@RequestBody String body_str) {
+        JSONObject ret = new JSONObject();
+        JSONObject body = new JSONObject(body_str);
+        try{
+            String jws;
+            try{
+                jws = body.getString("jws");
+                JWTService.verifyJWT(jws);
+                body.remove("jws");
+                ArrayList<String> keys = new ArrayList<>();
+                Iterator<String> keys_iterator = body.keys();
+                while(keys_iterator.hasNext()){
+                    keys.add(keys_iterator.next());
+                }
+
+            }catch (JSONException e){
+                throw new InformationsException();
+            }
+        }catch (Exception e){
+            ret.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return ret.toString();
+    }
+
+
 }
