@@ -125,8 +125,6 @@ public class DataService {
                 }
 
                 sql = sql.substring(0, sql.length() - 5);
-
-                System.out.println(sql);
             }
 
         JSONArray jsonArray =  new JSONArray();

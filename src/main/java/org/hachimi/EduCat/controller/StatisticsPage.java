@@ -1,7 +1,9 @@
 package org.hachimi.EduCat.controller;
 
 import org.hachimi.EduCat.Exceptions.InformationsException;
+import org.hachimi.EduCat.Exceptions.NotValidJwsException;
 import org.hachimi.EduCat.repository.DataService;
+import org.hachimi.EduCat.service.JWTService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,18 +21,22 @@ public class StatisticsPage {
     }
 
     @PostMapping(path = "/getPartiesInfos")
-    public String getPartiesInfos(@RequestBody String body) throws InformationsException {
-        JSONObject json_body = new JSONObject(body);
-        JSONArray parties;
-        String IdUser;
+    public String getPartiesInfos(@RequestBody String body) throws InformationsException, NotValidJwsException {
+        try {
+            JSONObject json_body = new JSONObject(body);
+            JSONArray parties = new JSONArray();
 
-        try{
-            IdUser = json_body.getString("IdUser");
-            parties = dataService.getTableData("Partie", new JSONObject().put("IdUser", IdUser));
-        }catch (JSONException e){
-            throw new InformationsException();
+            String jws = json_body.getString("jws");
+
+            JSONObject payload = JWTService.getPayload(jws);
+
+            parties = dataService.getTableData("Partie", new JSONObject().put("IdUser", payload.getString("id")));
+
+            return parties.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        return parties.toString();
+        return "";
     }
+
 }

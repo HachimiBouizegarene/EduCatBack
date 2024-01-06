@@ -47,8 +47,8 @@ public class JWTService {
         return ret;
     }
 
-
     public static JSONObject getPayload(String jws_str) throws NotValidJwsException {
+
         JSONObject ret = new JSONObject();
         Claims content = null;
         try{
