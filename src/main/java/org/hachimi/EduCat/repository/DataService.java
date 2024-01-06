@@ -104,12 +104,16 @@ public class DataService {
         }
         return ret;
     }
-
-    public JSONArray getTableData(String table) {
+    public JSONArray getTableData(String table, String... filter) {
+        System.out.println(filter[0]);
         JSONArray jsonArray =  new JSONArray();
         try {
+            String sql = "SELECT * FROM " + table;
+
+
+
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM " + table);
+            ResultSet resultSet = statement.executeQuery(sql);
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
             while (resultSet.next()) {
@@ -270,4 +274,6 @@ public class DataService {
             throw new ServerException();
         }
     }
+
+
 }
