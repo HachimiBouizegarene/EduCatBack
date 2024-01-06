@@ -8,9 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.sql.rowset.serial.SerialException;
 import java.sql.*;
 import java.util.*;
 
@@ -104,13 +102,30 @@ public class DataService {
         }
         return ret;
     }
-    public JSONArray getTableData(String table, String... filter) {
-        System.out.println(filter[0]);
-        JSONArray jsonArray =  new JSONArray();
-        try {
+    public JSONArray getTableData(String table, JSONObject... filters) {
+
+        // EXEMPLE D'UTILISATION AVEC FILTRES : getTableData("Partie", new JSONObject().put("IdUser", "1")); (récupères toutes parties ou IdUser = 1)
+
             String sql = "SELECT * FROM " + table;
 
+            if(filters.length > 0){
 
+                sql = "SELECT * FROM " + table + " WHERE ";
+
+                for(int i = 0 ; i < filters.length ; ++i){
+                    String columnName = filters[i].keys().next();
+                    String filterValue = (String) filters[i].get(columnName);
+
+                    sql += columnName + " = '" + filterValue + "' AND ";
+                }
+
+                sql = sql.substring(0, sql.length() - 5);
+
+                System.out.println(sql);
+            }
+
+        JSONArray jsonArray =  new JSONArray();
+        try {
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);

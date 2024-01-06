@@ -19,7 +19,7 @@ public class GamesPage {
     @PostMapping(path = "/getGamesInfos", produces = MediaType.APPLICATION_JSON_VALUE)
     public String getGamesInfos() throws ServerException {
 
-        JSONArray jeux = dataService.getTableData("Jeu", "");
+        JSONArray jeux = dataService.getTableData("Jeu");
 
         for (int i = 0; i < jeux.length() ; i++) {
             int idJeu = ((JSONObject) jeux.get(i)).getInt("IdMatiere");
