@@ -105,6 +105,7 @@ public class DataService {
     public JSONArray getTableData(String table, JSONObject... filters) {
 
         // EXEMPLE D'UTILISATION AVEC FILTRES : getTableData("Partie", new JSONObject().put("IdUser", "1")); (récupères toutes parties ou IdUser = 1)
+        // A optimiser
 
             String sql = "SELECT * FROM " + table;
 
