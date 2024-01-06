@@ -56,7 +56,6 @@ public class ProfileController {
                 jws = body.getString("jws");
                 JWTService.verifyJWT(jws);
                 body.remove("jws");
-
             }catch (JSONException e){
                 throw new InformationsException();
             }

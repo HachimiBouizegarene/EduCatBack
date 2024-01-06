@@ -44,18 +44,19 @@ public class DataService {
     public JSONObject insertUser(User user) throws ServerException {
         JSONObject ret = new JSONObject();
         try{
-            String sql = "INSERT INTO `utilisateur` (`IdUser`, `Nom`, `Prenom`, `Email`, `Classe` , `MotDePasse`)" +
-                    " VALUES (NULL, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO `utilisateur` (`IdUser`, `Nom`, `Pseudonyme` , `Prenom`, `Email`, `Classe` , `MotDePasse`)" +
+                    " VALUES (NULL, ?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(sql);
             pstmt.setString(1, user.getName());
-            pstmt.setString(2, user.getForename());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getClasse());
-            pstmt.setString(5, user.getPasseword());
+            pstmt.setString(2, user.getPseudo());
+            pstmt.setString(3, user.getForename());
+            pstmt.setString(4, user.getEmail());
+            pstmt.setString(5, user.getClasse());
+            pstmt.setString(6, user.getPasseword());
             int rs = pstmt.executeUpdate();
             if (rs <= 0) ret.put("error", "Error when access to DataBase");
         }catch (SQLException e){
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             throw new ServerException();
         }
 
@@ -87,9 +88,12 @@ public class DataService {
                     String columnName = metaData.getColumnName(i);
                     String ColumnType = metaData.getColumnTypeName(i);
                     if(ColumnType.equals("BLOB") || ColumnType.equals("MEDIUMBLOB")){
-                        Blob blob = (Blob) resultSet.getBlob(columnName);
-                        byte[] data = blob.getBytes(1,(int) blob.length());
-                        ret.put(columnName, data);
+                        try {
+                            Blob blob = (Blob) resultSet.getBlob(columnName);
+                            byte[] data = blob.getBytes(1,(int) blob.length());
+                            ret.put(columnName, data);
+                        }catch (Exception e){}
+
                     }else {
                         ret.put(columnName, resultSet.getString(columnName));
                     }

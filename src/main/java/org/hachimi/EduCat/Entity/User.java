@@ -15,13 +15,15 @@ public class User {
     private String  classe;
     private String email;
     private String password;
+    private String pseudo;
 
-    public User(String name, String forename, String classe, String email, String password) {
+    public User(String name, String forename, String classe, String email, String password, String pseudo) {
         this.name = name;
         this.forename = forename;
         this.classe = classe;
         this.email = email;
         this.password = password;
+        this.pseudo = pseudo;
     }
 
     public User(JSONObject infos) throws InformationsException,ServerException, MailFormatException  {
@@ -31,6 +33,7 @@ public class User {
             this.classe = infos.getString("user_classe");
             this.email = infos.getString("user_email");
             this.password = infos.getString("user_password");
+            this.pseudo = infos.getString("user_pseudo");
         }catch (JSONException e) {
             throw new ServerException();
         }
@@ -69,4 +72,6 @@ public class User {
     public String getPasseword() {
         return password;
     }
+
+    public String getPseudo() {return  pseudo;}
 }
