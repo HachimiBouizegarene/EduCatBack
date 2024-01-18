@@ -218,6 +218,41 @@ public class DataService {
         return "Matière Inconnue";
     }
 
+    public String getLibelleJeuById(int idJeu) throws ServerException {
+        String sql = "SELECT NomJeu from jeu WHERE IdJeu = ?";
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, idJeu);
+            ResultSet resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                // Retourner l'objet JSON sous forme de chaîne
+                return resultSet.getString("NomJeu");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new ServerException();
+        }
+
+        return "Nom du jeu inconnu";
+    }
+
+    public int getIdJeuByLibelle(String NomJeu) throws ServerException {
+        String sql = "SELECT IdJeu from jeu WHERE NomJeu = ?";
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, NomJeu);
+            ResultSet resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                return resultSet.getInt("IdJeu");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new ServerException();
+        }
+
+        return -1;
+    }
+
     public void updateUser(int id, Iterator<String> columns, JSONObject data) throws ServerException {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("UPDATE utilisateur SET ");

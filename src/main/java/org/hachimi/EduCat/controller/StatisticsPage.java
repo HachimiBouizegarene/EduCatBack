@@ -32,6 +32,16 @@ public class StatisticsPage {
 
             parties = dataService.getTableData("Partie", new JSONObject().put("IdUser", payload.getString("id")));
 
+            for (int i = 0; i < parties.length(); i++) {
+                if (i > 100) {
+                    break;  // Casse la boucle si i > 100
+                }
+
+                int idJeu = ((JSONObject) parties.get(i)).getInt("IdJeu");
+                ((JSONObject) parties.get(i)).put("NomJeu", dataService.getLibelleJeuById(idJeu));
+            }
+
+
             return parties.toString();
         } catch (Exception e) {
             e.printStackTrace();
