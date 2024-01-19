@@ -1,6 +1,7 @@
 package org.hachimi.EduCat.repository;
 
 import org.hachimi.EduCat.Entity.User;
+import org.hachimi.EduCat.Exceptions.EmailPseudoDuplicate;
 import org.hachimi.EduCat.Exceptions.FailUpdatePasswordException;
 import org.hachimi.EduCat.Exceptions.ServerException;
 import org.hachimi.EduCat.Exceptions.UserNotFoundException;
@@ -41,7 +42,7 @@ public class DataService {
         return DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword);
     }
 
-    public JSONObject insertUser(User user) throws ServerException {
+    public JSONObject insertUser(User user) throws ServerException, EmailPseudoDuplicate {
         JSONObject ret = new JSONObject();
         try{
             String sql = "INSERT INTO `utilisateur` (`IdUser`, `Nom`, `Pseudonyme` , `Prenom`, `Email`, `Classe` , `MotDePasse`)" +
@@ -55,6 +56,9 @@ public class DataService {
             pstmt.setString(6, user.getPasseword());
             int rs = pstmt.executeUpdate();
             if (rs <= 0) ret.put("error", "Error when access to DataBase");
+        }catch (SQLIntegrityConstraintViolationException e){
+            e.printStackTrace();
+            throw new EmailPseudoDuplicate();
         }catch (SQLException e){
             e.printStackTrace();
             throw new ServerException();
@@ -91,7 +95,8 @@ public class DataService {
                         try {
                             Blob blob = (Blob) resultSet.getBlob(columnName);
                             byte[] data = blob.getBytes(1,(int) blob.length());
-                            ret.put(columnName, data);
+                            byte[] result = (data == null) ? new byte[]{} : data;
+                            ret.put(columnName, result) ;
                         }catch (Exception e){}
 
                     }else {
@@ -120,7 +125,6 @@ public class DataService {
                 for(int i = 0 ; i < filters.length ; ++i){
                     String columnName = filters[i].keys().next();
                     String filterValue = (String) filters[i].get(columnName);
-
                     sql += columnName + " = '" + filterValue + "' AND ";
                 }
 
@@ -313,7 +317,7 @@ public class DataService {
         return ret;
     }
 
-    public boolean upadtePassword(int id, String password) throws ServerException, FailUpdatePasswordException {
+    public boolean upadatePassword(int id, String password) throws ServerException, FailUpdatePasswordException {
         String sql = "UPDATE utilisateur SET MotDePasse = ? WHERE IdUser = ? ";
         try{
             PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -326,6 +330,40 @@ public class DataService {
             e.printStackTrace();
             throw new ServerException();
         }
+    }
+
+    public JSONObject getLevelXp(int id) throws ServerException{
+        JSONObject ret = new JSONObject();
+        String sql = "SELECT Xp, Niveau FROM utilisateur WHERE idUser = ?";
+        try{
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            ResultSet resultSet = pstmt.executeQuery();
+            if(!resultSet.next()) throw new ServerException();
+            ret.put("xp", resultSet.getInt("Xp"));
+            ret.put("level", resultSet.getInt("Niveau"));
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new ServerException();
+        }
+        return ret;
+    }
+
+    public boolean updateLevelXp(int id, JSONObject newLevelXp) throws ServerException{
+        JSONObject ret = new JSONObject();
+        String sql = "UPDATE utilisateur SET Xp = ? , Niveau = ?  WHERE IdUser = ?";
+        try{
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, newLevelXp.getInt("newXp"));
+            pstmt.setInt(2, newLevelXp.getInt("newLevel"));
+            pstmt.setInt(3, id);
+            int result = pstmt.executeUpdate();
+            if(result < 1) return false;
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new ServerException();
+        }
+        return true;
     }
 
 

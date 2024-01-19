@@ -1,21 +1,16 @@
 package org.hachimi.EduCat.controller;
 
+import org.hachimi.EduCat.Entity.User;
 import org.hachimi.EduCat.Exceptions.FailUpdatePasswordException;
 import org.hachimi.EduCat.Exceptions.InformationsException;
 import org.hachimi.EduCat.Exceptions.NotValidPasswordException;
 import org.hachimi.EduCat.repository.DataService;
 import org.hachimi.EduCat.service.JWTService;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.sql.Blob;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 @RestController
@@ -38,7 +33,20 @@ public class ProfileController {
             }
 
             JSONObject payload = JWTService.getPayload(jws);
-            ret = dataService.getUser(null, null,  payload.getInt("id"));
+            JSONObject user_json = dataService.getUser(null, null,  payload.getInt("id"));
+
+            byte[] photoProfil = null;
+            try{
+                photoProfil = (byte[]) user_json.get("PhotoProfil");
+            }catch (JSONException e){
+            }
+
+            User user = new User(user_json.getString("Nom"), user_json.getString("Prenom"), user_json.getString("Classe"),
+                    user_json.getString("Email"), user_json.getString("MotDePasse"),
+                    user_json.getString("Pseudonyme"),photoProfil,
+                    user_json.getInt("Niveau"), user_json.getInt("Xp"));
+
+            ret = user.getInfos();
             ret.remove("MotDePasse");
         }catch (Exception e){
             ret.put("error", e.getMessage());
@@ -47,6 +55,7 @@ public class ProfileController {
         return ret.toString();
     }
     @PostMapping(path = "/updateProfile")
+
     public String updateProfile(@RequestBody String body_str) {
         JSONObject ret = new JSONObject();
         JSONObject body = new JSONObject(body_str);
@@ -94,7 +103,7 @@ public class ProfileController {
             int id = payload.getInt("id");
             if(!dataService.verifyPassword(id, old_password)) throw new NotValidPasswordException();
             else{
-                if(!dataService.upadtePassword(id, new_password)) throw new FailUpdatePasswordException();
+                if(!dataService.upadatePassword(id, new_password)) throw new FailUpdatePasswordException();
             }
             ret.put("success", "Votre mot de passe à été changé avec succès");
         }catch (Exception e){
