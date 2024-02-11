@@ -2,6 +2,9 @@ package org.hachimi.eduCat.service;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class UserService {
 
 
@@ -22,8 +25,8 @@ public class UserService {
 
 
 
-    public static JSONObject updateScore(Integer level, Integer actualXp, Integer xpToAdd){
-        JSONObject ret = new JSONObject();
+    public static Map<String, Integer> updateScore(Integer level, Integer actualXp, Integer xpToAdd){
+        Map<String, Integer> ret = new HashMap<>();
         while(true){
             Integer xpStaying = getXpStaying(level, actualXp);
             Integer delta = xpStaying - xpToAdd;
@@ -36,8 +39,8 @@ public class UserService {
                 xpToAdd = delta * -1;
             }
         }
-        ret.put("newXp", actualXp);
-        ret.put("newLevel", level);
+        ret.put("xp", actualXp);
+        ret.put("level", level);
         return ret;
     }
 }

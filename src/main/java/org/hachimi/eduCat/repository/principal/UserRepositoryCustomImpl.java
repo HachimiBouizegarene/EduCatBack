@@ -20,7 +20,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
         // TODO : Deleguer a une autre classe la verification des informations
 
-        StringBuilder jpql = new StringBuilder("UPDATE UserRemake u SET");
+        StringBuilder jpql = new StringBuilder("UPDATE User u SET");
         Iterator<String> keys =  informations.keys();
 
         // SI AUCUNE INFO

@@ -1,21 +1,21 @@
 package org.hachimi.eduCat.controller;
 
 import org.hachimi.eduCat.Exceptions.NotValidJwsException;
-import org.hachimi.eduCat.entity.principal.User;
 import org.hachimi.eduCat.Exceptions.FailUpdatePasswordException;
 import org.hachimi.eduCat.Exceptions.InformationsException;
 import org.hachimi.eduCat.Exceptions.NotValidPasswordException;
-import org.hachimi.eduCat.entity.principal.UserRemake;
-import org.hachimi.eduCat.repository.DataService;
+import org.hachimi.eduCat.entity.principal.User;
 import org.hachimi.eduCat.repository.principal.UserRepository;
 import org.hachimi.eduCat.service.JWTService;
+import org.hachimi.eduCat.service.UserService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Iterator;
+
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -36,10 +36,10 @@ public class ProfileController {
             }
 
             JSONObject payload = JWTService.getPayload(jws);
-            Optional<UserRemake> userOptional = userRepository.findById(payload.getInt("id"));
+            Optional<User> userOptional = userRepository.findById(payload.getInt("id"));
 
             if (userOptional.isPresent()){
-                UserRemake user  = userOptional.get();
+                User user  = userOptional.get();
                 ret = user.GetInfos(false);
             }else{
                 throw new NotValidJwsException();
@@ -111,6 +111,41 @@ public class ProfileController {
         }
 
         return ret.toString();
+    }
+
+
+    @PostMapping(path = "/updateScore")
+    //TODO : verifier que le score est positif
+
+    public String updateScore(@RequestBody String body_str){
+        JSONObject body = new JSONObject(body_str);
+        JSONObject ret = new JSONObject();
+
+        try{
+            String jws;
+            int updateScore;
+            try{
+                jws = body.getString("jws");
+                updateScore = body.getInt("xp");
+            }catch (JSONException e){
+                throw new InformationsException();
+            }
+
+            JSONObject payload = JWTService.getPayload(jws);
+            int id = payload.getInt("id");
+            Map<String, Integer> LevelAndXp = userRepository.getUserXpById(id);
+
+            int level = LevelAndXp.get("level");
+            int xp = LevelAndXp.get("xp");
+
+            Map<String, Integer> newLevelXp = UserService.updateScore(level, xp, updateScore);
+            userRepository.setUserLevelAndXp(id, newLevelXp.get("level"), newLevelXp.get("xp"));
+
+        }catch (Exception e){
+            ret.put("error", e.getMessage());
+        }
+
+        return  ret.toString();
     }
 
 

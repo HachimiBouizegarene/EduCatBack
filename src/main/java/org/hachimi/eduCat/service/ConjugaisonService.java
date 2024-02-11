@@ -1,7 +1,8 @@
 package org.hachimi.eduCat.service;
 
 import org.hachimi.eduCat.Exceptions.*;
-import org.hachimi.eduCat.repository.DataServiceConjugaison;
+import org.hachimi.eduCat.repository.conjugation.FirstGroupRepository;
+import org.hachimi.eduCat.repository.conjugation.SecondGroupRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,11 @@ import java.util.*;
 
 @Service
 public class ConjugaisonService {
-    private final DataServiceConjugaison dataServiceConjugaison;
+
+    @Autowired
+    private FirstGroupRepository firstGroupRepository;
+    @Autowired
+    private SecondGroupRepository secondGroupRepository;
 
     private final ArrayList<double[]> dificulty_probabilities =  new ArrayList<>(Arrays.asList(
             new double[]{0.60, 0.30, 0.07, 0.03},
@@ -22,10 +27,6 @@ public class ConjugaisonService {
     ArrayList<String> times = new ArrayList<>(Arrays.asList("present", "imparfait", "futur_simple", "passe_simple"));
     ArrayList<String> groups = new ArrayList<>(Arrays.asList("premier_groupe", "second_groupe"));
     ArrayList<String> pronoms = new ArrayList<>(Arrays.asList("je", "tu", "il/elle", "nous", "vous", "ils/elles"));
-    @Autowired
-    public ConjugaisonService(DataServiceConjugaison dataServiceConjugaison) {
-        this.dataServiceConjugaison = dataServiceConjugaison;
-    }
 
 
     public JSONObject generateVerb(int difficulty) throws TimeConjugationException, GroupConjugationException, ServerException, NoVerbFoundException, DifficultyNotExistException {
@@ -37,10 +38,13 @@ public class ConjugaisonService {
         String group = groups.get(random_group);
         if(!VerifyGroup(group)) throw new GroupConjugationException(group);
 
-        String verb  = dataServiceConjugaison.get_verb(group).getString("verbe");
+        String verb = switch (group) {
+            case "premier_groupe" -> firstGroupRepository.findRandomVerb();
+            case "second_groupe" -> secondGroupRepository.findRandomVerb();
+            default -> null;
+        };
+
         ret.put("verb", verb);
-
-
 
         String pronom = pronoms.get(random.nextInt(pronoms.size()));
         String time = getRandomElementWithProbabilities(times,dificulty_probabilities.get(difficulty));
