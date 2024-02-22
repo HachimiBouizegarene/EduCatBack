@@ -33,12 +33,4 @@ public interface UserRepository extends CrudRepository<User, Integer>, UserRepos
     @Transactional
     @Query("UPDATE User u SET u.level = :level, u.xp = :xp WHERE u.id = :id")
     Integer setUserLevelAndXp(@Param("id") Integer id, @Param("level") Integer level,@Param("xp") Integer xp);
-
-    // Méthode pour rechercher un utilisateur par son adresse e-mail
-    @Query("SELECT u FROM User u WHERE u.email = :email")
-    User findByEmail(@Param("email") String email);
-
-    // Méthode pour vérifier si un utilisateur existe en fonction de son adresse e-mail
-    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM User u WHERE u.email = :email")
-    boolean existsByEmail(@Param("email") String email);
 }
