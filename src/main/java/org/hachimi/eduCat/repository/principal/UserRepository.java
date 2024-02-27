@@ -16,7 +16,13 @@ public interface UserRepository extends CrudRepository<User, Integer>, UserRepos
     @Query("SELECT u.Id FROM User u WHERE u.password = :password AND u.email = :email")
     Integer findUserIdByMailPassword(@Param("email") String email, @Param("password") String password);
 
+    @Query("SELECT u.ecats FROM User u WHERE u.id = :id")
+    Integer findUserEcatsById(@Param("id") Integer id);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.ecats = :ecats WHERE u.id = :id")
+    Integer setUserEcatsById(@Param("id") Integer id, @Param("ecats") Integer password);
 
     @Query("SELECT True FROM User u where u.id = :id AND u.password = :password")
     Boolean verifyUserPassword(@Param("id") Integer id, @Param("password") String password);
@@ -41,4 +47,7 @@ public interface UserRepository extends CrudRepository<User, Integer>, UserRepos
     // Méthode pour vérifier si un utilisateur existe en fonction de son adresse e-mail
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM User u WHERE u.email = :email")
     boolean existsByEmail(@Param("email") String email);
+
+    @Query("select u from User u JOIN u.possesses p where p.idUser = u.id ")
+    Iterable<User> findUsersTest();
 }
