@@ -13,11 +13,31 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.crypto.Cipher;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 @RestController
 public class LogSign {
 
+    @Autowired
+    private Cipher aesCipher;
 
+    @Autowired
+    private Cipher aesDecipher;
+
+    public String encrypt(String data) throws Exception {
+        byte[] encryptedBytes = aesCipher.doFinal(data.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+
+    public String decrypt(String encryptedData) throws Exception {
+        byte[] decryptedBytes = aesDecipher.doFinal(Base64.getDecoder().decode(encryptedData));
+        return new String(decryptedBytes);
+    }
 
     @Autowired
     private UserRepository userRepository;
@@ -33,7 +53,7 @@ public class LogSign {
             String password;
             try{
                 mail = json_body.getString("email");
-                password = json_body.getString("password");
+                password = encrypt(json_body.getString("password"));
             }catch (JSONException e){
                 throw new InformationsException();
             }
@@ -60,7 +80,7 @@ public class LogSign {
             String name = json_body.getString("name");
             String forename = json_body.getString("forename");
             String email = json_body.getString("email");
-            String password = json_body.getString("password");
+            String password = encrypt(json_body.getString("password"));
             String classe = json_body.getString("classe");
             String pseudo = json_body.getString("pseudo");
 
