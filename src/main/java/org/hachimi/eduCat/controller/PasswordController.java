@@ -21,7 +21,7 @@ public class PasswordController {
 
         // Récupération de l'e-mail et du nouveau mot de passe à partir du corps JSON
         String email = jsonBody.getString("email");
-        String newPassword = jsonBody.getString("newPassword");
+        String newPassword = jsonBody.getString("email");
 
         // Recherche de l'utilisateur dans la base de données par e-mail
         User user = userRepository.findByEmail(email);

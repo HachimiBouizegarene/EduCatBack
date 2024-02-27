@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.hachimi.eduCat.service.UserService;
 import org.json.JSONObject;
 import java.sql.SQLException;
+import java.util.List;
 
 @Entity
 @Table(name = "utilisateur")
@@ -53,6 +54,14 @@ public class User {
     @Column(name = "niveau")
     private int level;
 
+    @Column(name = "ecats")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int ecats;
+
+
+    @OneToMany(mappedBy = "user")
+    private List<Possesses> possesses = null;
+
     public Integer getId() {
         return id;
     }
@@ -78,8 +87,6 @@ public class User {
     }
 
     public byte[] getProfileImage() throws SQLException {
-        // A changer si trop grosse image ne va pas fonctionner
-//        byte[] data = profile_image.getBytes(1, (int) profile_image.length());
         return profileImage;
     }
 
@@ -103,6 +110,7 @@ public class User {
         ret.put("xp", getXp());
         ret.put("email", getEmail());
         ret.put("percentage", UserService.getPercentage(this.level, this.xp));
+        ret.put("ecats", getEcats());
         if(withPassword) ret.put("password", getPassword());
         return ret;
 
@@ -110,5 +118,9 @@ public class User {
 
     public String getPseudo() {
         return pseudo;
+    }
+
+    public int getEcats() {
+        return ecats;
     }
 }
