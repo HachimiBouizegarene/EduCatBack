@@ -14,4 +14,7 @@ public interface GameSessionRepository extends CrudRepository<GameSession, Integ
     @Query("SELECT gs FROM GameSession gs WHERE gs.idUser = :idUser")
     Iterable<GameSession> getGameSessionsByIdUser(@Param("idUser") Integer idUser);
 
+    @Query("SELECT COUNT(gs) FROM GameSession gs WHERE gs.idUser = :idUser AND gs.idGame = :idGame")
+    Integer countGamesByUserIdAndGameId(@Param("idUser") Integer idUser, @Param("idGame") Integer idGame);
+
 }

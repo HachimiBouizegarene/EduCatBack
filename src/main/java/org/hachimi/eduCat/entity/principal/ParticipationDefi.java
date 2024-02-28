@@ -67,8 +67,20 @@ public class ParticipationDefi {
         return scoreCondition;
     }
 
+    public Integer getNbPartiesCondition(){
+        return nbParties;
+    }
+
     public Integer getNbParties(){
         return nbParties;
+    }
+
+    public Integer getRecompenseECats(){
+        return recompenseECats;
+    }
+
+    public Integer getRecompenseXP(){
+        return recompenseXP;
     }
 
     public void setJoueurAssocie(Integer joueurAssocie) {

@@ -63,4 +63,16 @@ public class GameSession {
 
         return ret;
     }
+
+    public Integer getGameId(){
+        return this.idGame;
+    }
+
+    public Integer getUserId(){
+        return this.idUser;
+    }
+
+    public String getScore(){
+        return this.score;
+    }
 }

@@ -4,10 +4,12 @@ import org.hachimi.eduCat.Exceptions.InformationsException;
 import org.hachimi.eduCat.Exceptions.NotValidJwsException;
 import org.hachimi.eduCat.Exceptions.ServerException;
 import org.hachimi.eduCat.entity.principal.Game;
+import org.hachimi.eduCat.entity.principal.GameSession;
 import org.hachimi.eduCat.entity.principal.ParticipationDefi;
 import org.hachimi.eduCat.entity.principal.User;
 import org.hachimi.eduCat.repository.principal.DefiRepository;
 import org.hachimi.eduCat.repository.principal.GameRepository;
+import org.hachimi.eduCat.repository.principal.GameSessionRepository;
 import org.hachimi.eduCat.repository.principal.UserRepository;
 import org.hachimi.eduCat.service.DefiService;
 import org.hachimi.eduCat.service.JWTService;
@@ -33,6 +35,9 @@ public class DefisController {
 
     @Autowired
     private GameRepository gameRepository;
+
+    @Autowired
+    private GameSessionRepository gameSessionRepository;
 
     private final DefiService defiService;
 
@@ -114,12 +119,39 @@ public class DefisController {
     }
 
     @PostMapping(path = "/verifierDefis", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String verifierDefis(@RequestBody String body_str) {
-        String res = defiService.verifierEtMettreAJourDefis(1,1,"1", "difficultyLibelle");
+    public String verifierDefis(@RequestBody String body_str) throws NotValidJwsException {
+        JSONObject body = new JSONObject(body_str);
+
+        User user = ifLoggedThenReturnUserElseThrowException(body);
+
+        // Récupérer toutes les sessions de jeu de l'utilisateur
+        Iterable<GameSession> sessions = gameSessionRepository.getGameSessionsByIdUser(user.getId());
+
+        // Récupérer tous les défis associés à cet utilisateur
+        List<ParticipationDefi> defis = defiRepository.findAllByJoueurAssocie(user.getId());
 
         JSONArray ret = new JSONArray();
 
-        ret.put(res);
+        for (ParticipationDefi defi : defis) {
+            boolean isCompleted = false; // Flag to track if the current challenge is completed
+
+            for (GameSession session : sessions) {
+                if (defiService.sessionMeetsDefiConditions(session, defi)) { // Assuming this method exists and compares session with defi conditions
+                    defi.setStatut(1); // Mark the challenge as completed
+                    defiRepository.save(defi);
+                    isCompleted = true;
+                    break; // Exit the loop once the challenge is completed
+                }
+            }
+
+            if (isCompleted) {
+                JSONObject defiResult = new JSONObject();
+                defiResult.put("Defi", generateDefiDescription(defi));
+                defiResult.put("XP", defi.getRecompenseXP());
+                defiResult.put("E-CAT", defi.getRecompenseECats());
+                ret.put(defiResult);
+            }
+        }
 
         return ret.toString();
     }

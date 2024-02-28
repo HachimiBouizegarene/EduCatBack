@@ -18,35 +18,45 @@ public class DefiService {
     @Autowired
     private DefiRepository defiRepository;
 
-    public String verifierEtMettreAJourDefis(Integer idUser, Integer idGame, String score, String difficultyLibelle) {
+    public Boolean sessionMeetsDefiConditions(GameSession partie, ParticipationDefi defi) {
+        if (defi.getStatut() == 1)
+            return false;
 
-        if(true)
-            return "test";
-
-        // Convertir le score en entier pour la comparaison
-        Integer scorePartie = Integer.parseInt(score);
-
-        // Récupérer toutes les sessions de jeu de l'utilisateur
-        Iterable<GameSession> sessions = gameSessionRepository.getGameSessionsByIdUser(idUser);
-
-        // Récupérer tous les défis associés à cet utilisateur
-        List<ParticipationDefi> defis = defiRepository.findAllByJoueurAssocie(idUser);
-
-        for (ParticipationDefi defi : defis) {
-            // Vérifier si le défi est déjà accompli
-            if (defi.getStatut() == 1) continue; // Supposons que le statut 1 signifie accompli
-
-            boolean conditionScore = scorePartie >= defi.getScoreCondition(); // Vérifie si le score de la partie remplit la condition du défi
-            boolean conditionNbParties = ((List<GameSession>) sessions).size() >= defi.getNbParties(); // Vérifie si le nombre de parties jouées remplit la condition
-
-            // Si les conditions sont remplies, mettre à jour le statut du défi
-            if (conditionScore && conditionNbParties) {
-                defi.setStatut(1); // Mettre à jour le statut comme accompli
-                defiRepository.save(defi); // Sauvegarder la mise à jour dans la base de données
-                // Vous pouvez ajouter ici la logique pour attribuer des récompenses
-                return "succes";
-            }
+        // Check if the challenge is associated with a game and if the game ID matches
+        if (defi.getJeuAssocie() != null && !partie.getGameId().equals(defi.getJeuAssocie().getId())) {
+            return false;
         }
-        return score;
+
+        // Check if the score condition is met
+        if (defi.getScoreCondition() != null && convertToScore(partie.getScore()) < defi.getScoreCondition()) {
+            return false;
+        }
+
+        // Calculate the number of games played by the user for this game ID
+        Integer countGamesByUserIdAndGameId = gameSessionRepository.countGamesByUserIdAndGameId(partie.getUserId(), partie.getGameId());
+
+        // Check if the number of games played condition is met
+        if (defi.getNbPartiesCondition() != null && countGamesByUserIdAndGameId < defi.getNbPartiesCondition()) {
+            return false;
+        }
+
+        // If all conditions are met
+        return true;
+    }
+
+
+    public static int convertToScore(String fraction) {
+        // Séparation du numérateur et du dénominateur
+        String[] parts = fraction.split("/");
+        int numerator = Integer.parseInt(parts[0]);
+        int denominator = Integer.parseInt(parts[1]);
+
+        // Calcul du score
+        double score = ((double) numerator / denominator) * 100;
+
+        // Arrondi du score
+        int roundedScore = (int) Math.round(score);
+
+        return roundedScore;
     }
 }
