@@ -41,4 +41,12 @@ public class Game {
 
         return ret;
     }
+
+    public String getNomJeu(){
+        return name;
+    }
+
+    public byte[] getImageJeu(){
+        return image;
+    }
 }

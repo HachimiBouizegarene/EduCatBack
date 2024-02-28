@@ -6,6 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface GameRepository extends CrudRepository<Game , Integer> {
 
@@ -15,4 +17,7 @@ public interface GameRepository extends CrudRepository<Game , Integer> {
 
     @Query("SELECT g.name FROM Game g WHERE g.id = :id")
     String getNameGameById(@Param("id") Integer id);
+
+    @Query("SELECT g.id FROM Game g")
+    List<Integer> getAllGamesId();
 }
