@@ -49,7 +49,15 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
             String key = keys.next();
             if (key.equals("profileImage")) {
                 query.setParameter(key, GeneralService.JSONarrayToBytes(informations.getJSONArray("profileImage")));
-            }else query.setParameter(key, informations.getString(key));
+            }else {
+                try {
+                    query.setParameter(key, informations.getString(key));
+                }catch (Exception e){}
+                try {
+                    query.setParameter(key, informations.getInt(key));
+                }catch (Exception e){}
+
+            }
 
         }
         int updateResult = query.executeUpdate();

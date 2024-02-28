@@ -4,10 +4,13 @@ import org.hachimi.eduCat.Exceptions.NotValidJwsException;
 import org.hachimi.eduCat.Exceptions.FailUpdatePasswordException;
 import org.hachimi.eduCat.Exceptions.InformationsException;
 import org.hachimi.eduCat.Exceptions.NotValidPasswordException;
+import org.hachimi.eduCat.entity.principal.Product;
 import org.hachimi.eduCat.entity.principal.User;
+import org.hachimi.eduCat.repository.principal.PossessesRepository;
 import org.hachimi.eduCat.repository.principal.UserRepository;
 import org.hachimi.eduCat.service.JWTService;
 import org.hachimi.eduCat.service.UserService;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,6 +26,8 @@ import java.util.Optional;
 public class ProfileController {
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    PossessesRepository possessesRepository;
     @PostMapping(path = "/getProfile")
     public String getProfile(@RequestBody String body_str) {
         JSONObject body = new JSONObject(body_str);
@@ -41,7 +47,9 @@ public class ProfileController {
             if (userOptional.isPresent()){
                 User user  = userOptional.get();
                 ret = user.GetInfos(false);
+
             }else{
+                // Je doute...
                 throw new NotValidJwsException();
             }
 
@@ -69,7 +77,7 @@ public class ProfileController {
             // TODO : Gerer les cas de duplications (pseudo, email)
             // TODO : Gerer les cas de Foreign Key
             userRepository.setUserInformations(payload.getInt("id"), body);
-            ret.put("success","Informations personnels mises a jours !");
+            ret.put("success","Mis a jour avec succes !");
         }catch (Exception e){
             ret.put("error", e.getMessage());
             e.printStackTrace();
@@ -148,5 +156,36 @@ public class ProfileController {
         return  ret.toString();
     }
 
+    @PostMapping(path = "/getUnlockedProducts")
+    public String getUnlockedProducts(@RequestBody String body_str){
+        JSONObject body = new JSONObject(body_str);
+        JSONArray ret = new JSONArray();
+        try {
+            String jws;
+
+            try {
+                jws = body.getString("jws");
+            } catch (JSONException e) {
+                throw new InformationsException();
+            }
+
+            JSONObject payload = JWTService.getPayload(jws);
+            int userId = payload.getInt("id");
+
+            Iterator<Product> PossessedProducts = possessesRepository.findProductsByUserId(userId).iterator();
+
+            while (PossessedProducts.hasNext()){
+                ret.put(PossessedProducts.next().getInfos());
+            }
+
+
+        }catch (Exception e){
+            JSONObject retError = new JSONObject();
+            retError.put("error", e.getMessage());
+            return retError.toString();
+        }
+
+        return ret.toString();
+    }
 
 }

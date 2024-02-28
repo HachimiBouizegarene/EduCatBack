@@ -71,6 +71,31 @@ public class ShopController {
     }
 
 
+    @PostMapping(path = "/getEcats")
+    public String getEcats(@RequestBody String body_str){
+        JSONObject body = new JSONObject(body_str);
+        JSONObject ret = new JSONObject();
+        try{
+            String jws = null;
+            try{
+                jws = body.getString("jws");
+            }catch (JSONException e){
+                throw new InformationsException();
+            }
+
+            int idUser = JWTService.getPayload(jws).getInt("id");
+            Integer userEcats = userRepository.findUserEcatsById(idUser);
+
+            ret.put("ecats" , userEcats);
+
+        }catch (Exception e){
+            ret.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return  ret.toString();
+    }
+
     @PostMapping(path = "/buyProduct")
     public String buyProduct(@RequestBody String body_str){
         JSONObject ret = new JSONObject();

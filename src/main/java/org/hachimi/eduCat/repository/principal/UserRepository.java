@@ -2,6 +2,7 @@ package org.hachimi.eduCat.repository.principal;
 
 import jakarta.transaction.Transactional;
 import org.hachimi.eduCat.entity.principal.User;
+import org.hibernate.sql.Update;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -23,6 +24,7 @@ public interface UserRepository extends CrudRepository<User, Integer>, UserRepos
     @Modifying
     @Query("UPDATE User u SET u.ecats = :ecats WHERE u.id = :id")
     Integer setUserEcatsById(@Param("id") Integer id, @Param("ecats") Integer password);
+
 
     @Query("SELECT True FROM User u where u.id = :id AND u.password = :password")
     Boolean verifyUserPassword(@Param("id") Integer id, @Param("password") String password);
@@ -50,4 +52,9 @@ public interface UserRepository extends CrudRepository<User, Integer>, UserRepos
 
     @Query("select u from User u JOIN u.possesses p where p.idUser = u.id ")
     Iterable<User> findUsersTest();
+
+//    @Modifying
+//    @Transactional
+//    @Query("UPDATE User u SET u.avatarId = :avatarId WHERE u.id = :id")
+//    Integer updateUserAvatarIdById(@Param("id") Integer id, @Param("avatarId") Integer avatarId);
 }
