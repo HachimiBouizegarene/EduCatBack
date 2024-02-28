@@ -41,11 +41,19 @@ public class User {
     @Column(name = "motdepasse")
     private String password;
 
-    @Column(name = "photoprofil")
-    private byte[] profileImage;
 
     @Column(name = "Pseudonyme")
     private String pseudo;
+
+
+    @Column(name = "avatarId")
+    private Integer avatarId;
+
+    @ManyToOne
+    @MapsId("avatarId")
+    @JoinColumn(name = "avatarId")
+    private Product product;
+
 
     @Column(name = "Xp")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,9 +94,6 @@ public class User {
         return password;
     }
 
-    public byte[] getProfileImage() throws SQLException {
-        return profileImage;
-    }
 
     public int getXp() {
         return xp;
@@ -104,7 +109,8 @@ public class User {
         ret.put("pseudo", getPseudo());
         ret.put("name", getName());
         ret.put("forename", getForename());
-        ret.put("profileImage", getProfileImage());
+        ret.put("avatar", product.getContent());
+        ret.put("avatarId", getAvatarId());
         ret.put("classe", getClasse());
         ret.put("level", getLevel());
         ret.put("xp", getXp());
@@ -122,5 +128,9 @@ public class User {
 
     public int getEcats() {
         return ecats;
+    }
+
+    public Integer getAvatarId() {
+        return avatarId;
     }
 }

@@ -18,4 +18,5 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
 
     @Query("SELECT p.price FROM Product p WHERE p.id = :id")
     public Integer findProductPriceById(@Param("id") Integer id);
+    
 }

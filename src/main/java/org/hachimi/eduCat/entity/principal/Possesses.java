@@ -28,12 +28,12 @@ public class Possesses {
     private Integer idProduct;
 
     @ManyToOne
-    @MapsId("idProduct")
+    @MapsId("idUtilisateur")
     @JoinColumn(name = "idUtilisateur")
     private User user;
 
     @ManyToOne
-    @MapsId("idUser")
+    @MapsId("idProduit")
     @JoinColumn(name = "idProduit")
     private Product product;
 

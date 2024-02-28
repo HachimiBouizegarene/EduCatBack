@@ -28,6 +28,10 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<Possesses> possesses;
 
+    @OneToMany(mappedBy = "product")
+    private List<User> users;
+
+
 
     public JSONObject getInfos(){
         JSONObject ret = new JSONObject();
@@ -39,4 +43,7 @@ public class Product {
         return ret;
     }
 
+    public byte[] getContent() {
+        return this.content;
+    }
 }
