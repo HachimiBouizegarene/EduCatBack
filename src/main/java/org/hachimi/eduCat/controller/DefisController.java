@@ -9,6 +9,7 @@ import org.hachimi.eduCat.entity.principal.User;
 import org.hachimi.eduCat.repository.principal.DefiRepository;
 import org.hachimi.eduCat.repository.principal.GameRepository;
 import org.hachimi.eduCat.repository.principal.UserRepository;
+import org.hachimi.eduCat.service.DefiService;
 import org.hachimi.eduCat.service.JWTService;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +33,13 @@ public class DefisController {
 
     @Autowired
     private GameRepository gameRepository;
+
+    private final DefiService defiService;
+
+    @Autowired
+    public DefisController(DefiService defiService){
+        this.defiService= defiService;
+    }
 
     @PostMapping(path = "/getDefisJoueur", produces = MediaType.APPLICATION_JSON_VALUE)
     public String getDefisJoueur(@RequestBody String body_str) throws ServerException, InformationsException {
@@ -84,8 +92,14 @@ public class DefisController {
             for (int i = 0; i < 10; i++) {
                 ParticipationDefi defi = generateRandomDefi(user);
                 defiRepository.save(defi);
-            }
 
+                // Create a JSONObject for each challenge and its difficulty
+                JSONObject defiDetails = new JSONObject();
+                defiDetails.put("defi", generateDefiDescription(defi));
+                defiDetails.put("difficulty", calculateDifficultyLevel(defi));
+                // Add the challenge details to the array
+                defisCrees.put(defiDetails);
+            }
             response.put("success", true);
             response.put("defis", defisCrees);
         } catch (JSONException e) {
@@ -97,6 +111,17 @@ public class DefisController {
         }
 
         return response.toString();
+    }
+
+    @PostMapping(path = "/verifierDefis", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String verifierDefis(@RequestBody String body_str) {
+        String res = defiService.verifierEtMettreAJourDefis(1,1,"1", "difficultyLibelle");
+
+        JSONArray ret = new JSONArray();
+
+        ret.put(res);
+
+        return ret.toString();
     }
 
     public ParticipationDefi generateRandomDefi(User user) {
@@ -173,7 +198,7 @@ public class DefisController {
         difficultyScore = 0.5 * partiesFactor + 0.5 * scoreFactor;
 
         if (defi.getJeuAssocie() != null) {
-            difficultyScore += 0.1;
+            difficultyScore += 0.05;
         }
 
         // Assurez-vous que la difficulté reste entre 0 et 1

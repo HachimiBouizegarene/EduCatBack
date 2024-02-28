@@ -98,4 +98,8 @@ public class ParticipationDefi {
     public void setRecompenseXp(Integer recompenseXP) {
         this.recompenseXP = recompenseXP;
     }
+
+    public void setStatut(int i) {
+        this.statut = i;
+    }
 }
